@@ -26,6 +26,7 @@
 (display (number-times-increases (call-with-input-file "1" input->list)))
 (newline)
 
+
 ; 2/ Same question but by using a 3-values sliding window.
 
 (define (depths->windows depths)
