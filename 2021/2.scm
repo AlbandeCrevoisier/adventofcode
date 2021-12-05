@@ -16,21 +16,23 @@
         "up", it is enough to know that the third character is a space.
 |#
 
-(define (move-sub port x y)
-  (let ((line (read-line port)))
-    (if (eof-object? line)
-        (cons x y)
-        (cond
-          ((char-whitespace? (string-ref line 2)) ; "up X"
-           (move-sub port x (- y (string->number (substring line 3)))))
-          ((char-whitespace? (string-ref line 4)) ; "down X"
-           (move-sub port x (+ y (string->number (substring line 5)))))
-          ((char-whitespace? (string-ref line 7)) ; "forward X"
-           (move-sub port (+ x (string->number (substring line 8))) y))))))
+(define (move-sub-with-file port)
+  (define (move-sub x y)
+    (let ((line (read-line port)))
+      (if (eof-object? line)
+          (cons x y)
+          (cond
+            ((char-whitespace? (string-ref line 2)) ; "up X"
+             (move-sub x (- y (string->number (substring line 3)))))
+            ((char-whitespace? (string-ref line 4)) ; "down X"
+             (move-sub x (+ y (string->number (substring line 5)))))
+            ((char-whitespace? (string-ref line 7)) ; "forward X"
+             (move-sub (+ x (string->number (substring line 8))) y))))))
+  (move-sub 0 0))
 
 ; Call on input
 (display ((lambda (p) (* (car p) (cdr p)))
-            (move-sub (open-input-file "2") 0 0)))
+            (call-with-input-file "2" move-sub-with-file)))
 (newline)
 
 
@@ -43,29 +45,28 @@
     - It increases your depth by your aim multiplied by X.
   2/ Same question with the new interpretation.
 |#
-
-(define (move-sub-with-aim port x y aim)
-  (let ((line (read-line port)))
-    (if (eof-object? line)
-        (cons x y)
-        (cond
-          ((char-whitespace? (string-ref line 2)) ; "up X"
-           (move-sub-with-aim port
-                              x
-                              y
-                              (- aim (string->number (substring line 3)))))
-          ((char-whitespace? (string-ref line 4)) ; "down X"
-           (move-sub-with-aim port
-                              x
-                              y
-                              (+ aim (string->number (substring line 5)))))
-          ((char-whitespace? (string-ref line 7)) ; "forward X"
-           (move-sub-with-aim port
-                              (+ x (string->number (substring line 8)))
-                              (+ y (* aim (string->number (substring line 8))))
-                              aim))))))
+(define (move-sub-with-aim-with-file port)
+  (define (move-sub-with-aim x y aim)
+    (let ((line (read-line port)))
+      (if (eof-object? line)
+          (cons x y)
+          (cond
+            ((char-whitespace? (string-ref line 2)) ; "up X"
+             (move-sub-with-aim x
+                                y
+                                (- aim (string->number (substring line 3)))))
+            ((char-whitespace? (string-ref line 4)) ; "down X"
+             (move-sub-with-aim x
+                                y
+                                (+ aim (string->number (substring line 5)))))
+            ((char-whitespace? (string-ref line 7)) ; "forward X"
+             (move-sub-with-aim (+ x (string->number (substring line 8)))
+                                (+ y (* aim
+                                        (string->number (substring line 8))))
+                                aim))))))
+  (move-sub-with-aim 0 0 0))
 
 ; Call on input
 (display ((lambda (p) (* (car p) (cdr p)))
-            (move-sub-with-aim (open-input-file "2") 0 0 0)))
+            (call-with-input-file "2" move-sub-with-aim-with-file)))
 (newline)
