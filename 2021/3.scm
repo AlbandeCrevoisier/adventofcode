@@ -33,13 +33,11 @@
           1))
     (position-sum bins)))
 
+(define (flip-bit bit)
+  (if (= bit 0) 1 0))
+
 (define (epsilon gamma)
-  (map
-    (lambda (x)
-      (if (= x 0)
-          1
-          0))
-    gamma))
+  (map flip-bit gamma))
 
 ; Must work on any number of bits.
 (define (bin->number bin)
@@ -83,9 +81,6 @@
         (rec (filter bins (most-common-bit-in-pos bins position) position)
              (+ 1 position))))
   (rec bins 0))
-
-(define (flip-bit bit)
-  (if (= bit 0) 1 0))
 
 (define (CO2-scrubber bins)
   (define (rec bins position)
