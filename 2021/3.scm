@@ -54,3 +54,51 @@
     (* (bin->number gamma_rate)
        (bin->number (epsilon gamma_rate)))))
 (newline)
+
+#|
+  - Oxygen generator rating: same as gamma, but filtering bit after bit - for
+                             the second bit, use the most common bit of the
+                             remaining numbers.
+  - CO2 scrubber rating: same with epsilon.
+|#
+
+(define (filter bins criterion position)
+  (if (null? bins)
+      '()
+      (if (= (list-ref (car bins) position) criterion)
+          (cons (car bins) (filter (cdr bins) criterion position))
+          (filter (cdr bins) criterion position))))
+
+(define (most-common-bit-in-pos bins position)
+  (let ((frequency (apply + (map (lambda (x) (list-ref x position)) bins)))
+        (total (length bins)))
+    (if (< frequency (/ total 2))
+        0
+        1)))
+
+(define (O2-generator bins)
+  (define (rec bins position)
+    (if (= (length bins) 1)
+        (car bins)
+        (rec (filter bins (most-common-bit-in-pos bins position) position)
+             (+ 1 position))))
+  (rec bins 0))
+
+(define (flip-bit bit)
+  (if (= bit 0) 1 0))
+
+(define (CO2-scrubber bins)
+  (define (rec bins position)
+    (if (= (length bins) 1)
+        (car bins)
+        (rec (filter bins
+                     (flip-bit (most-common-bit-in-pos bins position))
+                     position)
+             (+ 1 position))))
+  (rec bins 0))
+
+; Call on input
+(let ((bins (call-with-input-file "3" input->bins)))
+  (display (* (bin->number (O2-generator bins))
+              (bin->number (CO2-scrubber bins)))))
+(newline)
