@@ -92,6 +92,7 @@
 (define (mark-draw draw card)
   (map (lambda (x) (mark-draw-in-row draw x)) card))
 
+; Return the result if a card won, then stop.
 (define (check-cards draw cards)
   (if (null? cards)
       '()
@@ -100,6 +101,7 @@
             (list (* draw (card-sum c)))
             (cons c (check-cards draw (cdr cards)))))))
 
+; If a card won, it returned the result instead of the card.
 (define (has-won? cards)
   (cond ((number? cards) cards) ; the first card won
         ((number? (car (reverse cards)))
@@ -119,3 +121,7 @@
 
 (define (day4-part1)
   (call-with-input-file "4" play-bingo-with-input))
+
+#|
+  What is the score of the last winning board?
+|#
