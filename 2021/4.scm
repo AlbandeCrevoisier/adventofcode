@@ -116,12 +116,37 @@
           (play-bingo (cdr draws) marked)))))
 
 (define (play-bingo-with-input port)
-  (let ((d (read-draws port)))
-    (play-bingo d (read-cards port))))
+  (let ((ds (read-draws port)))
+    (play-bingo ds (read-cards port))))
 
 (define (day4-part1)
   (call-with-input-file "4" play-bingo-with-input))
 
 #|
-  What is the score of the last winning board?
+  2/ What is the score of the last winning board?
+  Let's drop all winning cards until there is only one left.
+  Then, let's find its score.
 |#
+
+; Will only be used if cards is not '(number). Thus, drop won cards.
+(define (check-cards-drop-won draw cards)
+  (if (null? cards)
+      '()
+      (let ((c (mark-draw draw (car cards))))
+        (if (card-won? c)
+            (check-cards-drop-won draw (cdr cards))
+            (cons c (check-cards-drop-won draw (cdr cards)))))))
+
+; First, play until there is only one card.
+; Then, find its score.
+(define (last-score draws cards)
+  (if (= (length cards) 1)
+      (play-bingo draws cards) ; Work because it cannot have won yet.
+      (last-score (cdr draws) (check-cards-drop-won (car draws) cards))))
+
+(define (last-score-with-input port)
+  (let ((ds (read-draws port)))
+    (last-score ds (read-cards port))))
+
+(define (day4-part2)
+  (call-with-input-file "4" last-score-with-input))
