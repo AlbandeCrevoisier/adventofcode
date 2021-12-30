@@ -156,3 +156,13 @@
     (draw-segments! grid (append (filter-in-vertical segments)
                                  (filter-in-horizontal segments)))
     (number-of-2+s grid)))
+
+#|
+  2/ Same, but taking into account all segments.
+  Note: segments can only be vertical, horizontal, or diagonal (π/4).
+|#
+(define (day5-part2)
+  (let ((segments (call-with-input-file "5" read-segments))
+        (grid (make-grid 1000)))
+    (draw-segments! grid segments)
+    (number-of-2+s grid)))
