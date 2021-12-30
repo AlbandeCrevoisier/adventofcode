@@ -28,3 +28,33 @@
 
 (define (day6-part1)
   (length (simulate (call-with-input-file "6" read-ages) 80)))
+
+#|
+  2/ 256 days
+  Cannot simulate, as it would break the stack.
+  It's actualy just a circular buffer where 0 gets added to both 6 & 8 when
+  descending.
+|#
+
+(define (increment-age-count age-counts age)
+  (list-set! age-counts age (+ (list-ref age-counts age) 1)))
+
+(define (count-ages ages)
+  (let ((age-counts (make-list 9 0)))
+    (for-each (lambda (a) (increment-age-count age-counts a)) ages)
+    age-counts))
+
+(define (step-counts age-counts)
+  (let ((rotate-ages (append (cdr age-counts) (list (car age-counts)))))
+    (list-set! rotate-ages 6 (+ (list-ref rotate-ages 6)
+                                (list-ref rotate-ages 8)))
+    rotate-ages))
+
+(define (n-step-counts age-counts n-steps)
+  (if (= n-steps 0)
+      age-counts
+      (n-step-counts (step-counts age-counts) (- n-steps 1))))
+
+(define (day6-part2)
+  (let ((age-counts (count-ages (call-with-input-file "6" read-ages))))
+    (apply + (n-step-counts age-counts 256))))
