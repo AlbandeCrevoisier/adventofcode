@@ -38,3 +38,21 @@
           (max-pos (apply max positions)))
       (apply min (map (lambda (p) (fuel-to-align positions p))
                       (enumerate-positions min-pos max-pos))))))
+
+#|
+  Changing position now costs 1 more each tile.
+  2/ Minimal fuel needed to align crab subs?
+|#
+
+(define (new-fuel-to-align positions pos)
+  (define (align crab pos)
+    (let ((n (abs (- crab pos))))
+      (/ (* n (+ n 1)) 2)))
+  (apply + (map (lambda (p) (align p pos)) positions)))
+
+(define (day7-part2)
+  (let ((positions (call-with-input-file "7" read-positions)))
+    (let ((min-pos (apply min positions))
+          (max-pos (apply max positions)))
+      (apply min (map (lambda (p) (new-fuel-to-align positions p))
+                      (enumerate-positions min-pos max-pos))))))
