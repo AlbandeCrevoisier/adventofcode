@@ -1,5 +1,5 @@
 #|
-  Segments in a ten by ten grid are given as follows:
+  Segments in a (1,000 by 1,000?) grid are given as follows:
   x1,y1 -> x2,y2
   At first, the grid is filled with '.', then add 1 whenever a segment reaches
   these coordinates.
@@ -44,20 +44,46 @@
   (= (y-point (start-segment seg))
      (y-point (end-segment seg))))
 
-; format: "x1,y1 -> x2,y2"
-(define (read-segment port)
-  (let ((line (read-line port)))
-    (make-segment (make-point (digit-value (string-ref line 0))
-                              (digit-value (string-ref line 2)))
-                  (make-point (digit-value (string-ref line 7))
-                              (digit-value (string-ref line 9))))))
+(define (filter-in-vertical segments)
+  (cond ((null? segments) '())
+        ((vertical? (car segments))
+         (cons (car segments) (filter-in-vertical (cdr segments))))
+        (else
+         (filter-in-vertical (cdr segments)))))
 
-(define (read-segments port)
-  (let ((c (peek-char port)))
-    (if (eof-object? c)
-        '()
-        (let ((seg (read-segment port)))
-          (cons seg (read-segments port))))))
+(define (filter-in-horizontal segments)
+  (cond ((null? segments) '())
+        ((horizontal? (car segments))
+         (cons (car segments) (filter-in-horizontal (cdr segments))))
+        (else
+         (filter-in-horizontal (cdr segments)))))
+
+(define (next-point-segment seg)
+  (let ((start (start-segment seg))
+        (end (end-segment seg)))
+    (let ((x-start (x-point start))
+          (y-start (y-point start))
+          (x-end (x-point end))
+          (y-end (y-point end)))
+      (make-point (cond ((< x-start x-end)
+                         (+ x-start 1))
+                        ((= x-start x-end)
+                         x-start)
+                        ((> x-start x-end)
+                         (- x-start 1)))
+                   (cond ((< y-start y-end)
+                         (+ y-start 1))
+                        ((= y-start y-end)
+                         y-start)
+                        ((> y-start y-end)
+                         (- y-start 1)))))))
+
+(define (segment-points seg)
+  (let ((next-point (next-point-segment seg)))
+    (if (equal? next-point (start-segment seg))
+        (list next-point)
+        (cons (start-segment seg)
+              (segment-points (make-segment next-point (end-segment seg)))))))
 
 (define (make-grid dim)
   (map (lambda (x) (make-list dim 0))
@@ -75,3 +101,58 @@
   (let ((row (list-ref grid (y-point p)))
         (x (x-point p)))
     (list-set! row x (+ (list-ref row x) 1))))
+
+(define (draw-points! grid points)
+  (map (lambda (p) (draw-point! grid p)) points))
+
+(define (draw-segment! grid seg)
+  (draw-points! grid (segment-points seg)))
+
+(define (draw-segments! grid segments)
+  (map (lambda (seg) (draw-segment! grid seg)) segments))
+
+(define (number-of-2+s-in-row row)
+  (cond ((null? row) 0)
+        ((>= (car row) 2)
+         (+ 1 (number-of-2+s-in-row (cdr row))))
+        (else
+         (number-of-2+s-in-row (cdr row)))))
+
+(define (number-of-2+s grid)
+  (apply + (map number-of-2+s-in-row grid)))
+
+; format: "x1,y1 -> x2,y2"
+(define (read-number-string port)
+  (let ((c (peek-char port)))
+    (if (char-numeric? c)
+        (let ((actually-read-the-char (read-char port)))
+          (string-append (string c) (read-number-string port)))
+        "")))
+
+(define (read-segment port)
+  (let ((x1 (string->number (read-number-string port))))
+    (read-char port) ; read the comma
+    (let ((y1 (string->number (read-number-string port))))
+      (read-char port) ; " -> "
+      (read-char port)
+      (read-char port)
+      (read-char port)
+      (let ((x2 (string->number (read-number-string port))))
+        (read-char port) ; read the comma
+        (let ((y2 (string->number (read-number-string port))))
+          (read-char port) ; read the newline
+          (make-segment (make-point x1 y1) (make-point x2 y2)))))))
+
+(define (read-segments port)
+  (let ((c (peek-char port)))
+    (if (eof-object? c)
+        '()
+        (let ((seg (read-segment port)))
+          (cons seg (read-segments port))))))
+
+(define (day5-part1)
+  (let ((segments (call-with-input-file "5" read-segments))
+        (grid (make-grid 1000)))
+    (draw-segments! grid (append (filter-in-vertical segments)
+                                 (filter-in-horizontal segments)))
+    (number-of-2+s grid)))
