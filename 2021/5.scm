@@ -103,13 +103,13 @@
     (list-set! row x (+ (list-ref row x) 1))))
 
 (define (draw-points! grid points)
-  (map (lambda (p) (draw-point! grid p)) points))
+  (for-each (lambda (p) (draw-point! grid p)) points))
 
 (define (draw-segment! grid seg)
   (draw-points! grid (segment-points seg)))
 
 (define (draw-segments! grid segments)
-  (map (lambda (seg) (draw-segment! grid seg)) segments))
+  (for-each (lambda (seg) (draw-segment! grid seg)) segments))
 
 (define (number-of-2+s-in-row row)
   (cond ((null? row) 0)
