@@ -100,3 +100,124 @@
 
 (define (day8-part1)
   (count-1-4-7-8 (call-with-input-file "8" read-notes)))
+
+#|
+  2/ Decode all outputs & sum them.
+  Let's use  the following strategy to identify each segment:
+  1 -> cf
+  7 -> a
+  4 -> bd
+
+  5-with-2-unknown -> 2
+  5-with-1-unknown -> g
+
+  2 -> e, c->f, d->b
+  Let's use set substraction. I like sets.
+  We thus now deal with char lists instead of strings.
+  Note: I misunderstood the problem. There is no need to parse everything,
+  just to identify the numbers.
+  I guess it will be easier now anyway.
+|#
+
+; For sets of char.
+(define (remove-element-from-set set el)
+  (cond ((null? set) '())
+        ((char=? (car set) el)
+         (remove-element-from-set (cdr set) el))
+        (else
+         (cons (car set) (remove-element-from-set (cdr set) el)))))
+
+(define (set-substraction set1 set2)
+  (if (null? set2)
+      set1
+      (set-substraction (remove-element-from-set set1 (car set2))
+                        (cdr set2))))
+
+(define (set=? set1 set2)
+  (and (null? (set-substraction set1 set2))
+       (null? (set-substraction set2 set1))))
+
+(define (find-digit digits criterion)
+  (if (criterion (car digits))
+      (car digits)
+      (find-digit (cdr digits) criterion)))
+
+(define (find-cf digits)
+  (string->list (find-digit digits is-1?)))
+
+(define (find-a digits cf)
+  (set-substraction (string->list (find-digit digits is-7?)) cf))
+
+(define (find-bd digits cf)
+  (set-substraction (string->list (find-digit digits is-4?)) cf))
+
+(define (make-is-2? cfabd)
+  (lambda (digit)
+    (and (= (length digit) 5)
+         (= (length (set-substraction digit cfabd)) 2))))
+
+(define (find-two digits cfabd)
+  (find-digit (map string->list digits) (make-is-2? cfabd)))
+
+(define (make-is-other-5-segments? cfabd)
+  (lambda (digit)
+    (and (= (length digit) 5)
+         (= (length (set-substraction digit cfabd)) 1))))
+
+(define (find-g digits cfabd)
+  (set-substraction (find-digit (map string->list digits)
+                                (make-is-other-5-segments? cfabd))
+                    cfabd))
+
+(define (find-e two cfabdg)
+  (set-substraction two cfabdg))
+
+(define (find-c two abdeg)
+  (set-substraction two abdeg))
+
+(define (find-f cf c)
+  (set-substraction cf c))
+
+(define (find-d two aceg)
+  (set-substraction two aceg))
+
+(define (find-b bd d)
+  (set-substraction bd d))
+
+; Ugliest code I have written in Scheme -- yet.
+(define (make-parser digits)
+  (let ((cf (find-cf digits)))
+    (let ((a (find-a digits cf))
+          (bd (find-bd digits cf)))
+      (let ((two (find-two digits (append cf a bd))))
+        (let ((g (find-g digits (append cf a bd))))
+          (let ((e (find-e two (append cf a bd g))))
+            (let ((c (find-c two (append a bd e g))))
+              (let ((f (find-f cf c))
+                    (d (find-d two (append a c e g))))
+                (let ((b (find-b bd d)))
+                  (lambda (digit)
+                    (cond ((set=? (string->list digit) (append a b c e f g))
+                           0)
+                          ((is-1? digit) 1)
+                          ((set=? (string->list digit) two) 2)
+                          ((set=? (string->list digit) (append a c d f g)) 3)
+                          ((is-4? digit) 4)
+                          ((set=? (string->list digit) (append a b d f g)) 5)
+                          ((set=? (string->list digit) (append a b d e f g))
+                           6)
+                          ((is-7? digit) 7)
+                          ((is-8? digit) 8)
+                          ((set=? (string->list digit) (append a b c d f g))
+                           9))))))))))))
+
+(define (parse-note note)
+  (let ((output (map (make-parser (note-input note)) (note-output note))))
+    (+ (* 1000 (car output))
+       (* 100 (cadr output))
+       (* 10 (caddr output))
+       (cadddr output))))
+
+(define (day8-part2)
+  (let ((notes (call-with-input-file "8" read-notes)))
+    (apply + (map parse-note notes))))
