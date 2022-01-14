@@ -36,6 +36,9 @@
 (define (heightmap-ref hm index)
   (bytevector-u8-ref (heightmap-values hm) index))
 
+(define (heightmap-set! hm index val)
+  (bytevector-u8-set! (heightmap-values hm) index val))
+
 (define (read-heightmap port)
   (make-heightmap (read-bytelines port)))
 
@@ -85,3 +88,56 @@
 (define (day9-part1)
   (let ((hm (call-with-input-file "9" read-heightmap)))
     (apply + (map (lambda (x) (+ x 1)) (local-minima hm)))))
+
+#|
+  Basins are areas that flow to a minimum. Only 9's are not part of any basin.
+  The size of a basin is the number of locations it contains.
+  Each location belongs to a single basin, which belongs to a single minimum.
+  2/ Multiply the sizes of the three largest basins.
+  Note: The idea is probably to find minima & then find the size of the basin
+  surrounding them.
+  Assumption: based on the text, I assume that only 9's can be in the boundary
+  of a basin. I.e. the following is invalid:
+  1 2 1
+  3 4 3
+  Otherwise, I do not know thowards which basin the 2 & the 4 would belong.
+  Note: I do not like it, but I believe the best way is to modify the heightmap
+  to set the locations already visited to 10. Wish I could find a functional
+  way.
+|#
+
+(define (local-minima-indices hm)
+  (define (filter-min index)
+    (if (local-min? hm index)
+        (list index)
+        '()))
+  (apply append
+         (map filter-min (range 0 (heightmap-length hm)))))
+
+(define (basin-size hm index)
+  (heightmap-set! hm index 10) ; mark location as visited
+  (+ 1
+     (if (< (left-value hm index) 9)
+         (basin-size hm (- index 1))
+         0)
+     (if (< (right-value hm index) 9)
+         (basin-size hm (+ index 1))
+         0)
+     (if (< (above-value hm index) 9)
+         (basin-size hm (- index (heightmap-width hm)))
+         0)
+     (if (< (below-value hm index) 9)
+         (basin-size hm (+ index (heightmap-width hm)))
+         0)))
+
+(define (basin-sizes hm)
+  (map (lambda (x) (basin-size hm x)) (local-minima-indices hm)))
+
+(import (srfi 95)) ; sorting & merging algorithms
+
+(define (day9-part2)
+  (let ((hm (call-with-input-file "9" read-heightmap)))
+    (let ((basin-sizes (sort (basin-sizes hm))))
+      (let ((three-biggest-basins
+              (list-tail basin-sizes (- (length basin-sizes) 3))))
+        (apply * three-biggest-basins)))))
