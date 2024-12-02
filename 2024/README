@@ -2,5 +2,31 @@ Let's (re-re-re-)try Scheme, using the Advent of Code.
 
 Scheme: chibi-scheme (https://synthcode.com/scheme/chibi/)
 IDE: emacs using geiser (https://www.nongnu.org/geiser/)
+  & magit/forge (https://magit.vc/manual/forge/index.html)
 
 Furthermore, this README shall be my journal.
+
+1·XII·2024 — Initial commit
+This year, I would like to enjoy the AoC without any burden, therefore
+I shall set no completion objective.
+I chose Scheme without much thought, it's just the language with which
+I spontaneously wanted to play.
+
+2·XII·2024 — Set up
+I need a refresher on magit, would like to try forge with github,
+also needs a refresher on chibi-scheme & to learn more about snow.
+Lastly, I will try to learn more about geiser than merely switching
+from the code file to the REPL.
+Completion hangs geiser, I know not why.
+chibi-scheme -R starts the smart REPL.
+Completion works fine in my terminal, but neither in geiser nor in
+eshell.
+Scheme is a bare language, I intend to use R7RS (scheme base) along-
+side various SRFIs, though I know them not at the moment.
+It turns out, geiser doesn't actually play well with chibi-scheme.
+I'll now try Alex Shinn's scheme-complete, which he distributes as a
+file on his wiki. Add the file to the load-paths.
+(https://synthcode.com/wiki/scheme-complete)
+I actually used the previous commit on github swapping cl for cl-lib.
+This all works, but annoyingly I need my terminal to use the REPL
+with completion.
