@@ -16,8 +16,8 @@
         (utils)
         (srfi 132))  ;; sort
 
-(define input-list (call-with-input-file "day1-example" read-all-lines))
-;;(define input-list (call-with-input-file "day1-input" read-all-lines))
+(define input-list (read-input-file "day1-example"))
+;;(define input-list (read-input-file "day1-input"))
 
 (define extracted-input (map extract-numeric input-list))
 
