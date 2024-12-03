@@ -12,7 +12,7 @@ I shall set no completion objective.
 I chose Scheme without much thought, it's just the language with which
 I spontaneously wanted to play.
 
-2·XII·2024 — Set up
+2·XII·2024 — Set up & day 1 (part 1)
 I need a refresher on magit, would like to try forge with github,
 also needs a refresher on chibi-scheme & to learn more about snow.
 Lastly, I will try to learn more about geiser than merely switching
@@ -30,3 +30,6 @@ file on his wiki. Add the file to the load-paths.
 I actually used the previous commit on github swapping cl for cl-lib.
 This all works, but annoyingly I need my terminal to use the REPL
 with completion.
+
+3·XII·2024 — day 1 (part 2)
+The hash table SRFI was surprisingly pleasant to use.
