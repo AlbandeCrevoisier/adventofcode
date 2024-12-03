@@ -10,8 +10,8 @@
 ;; 3   3
 ;; would yield: [1 2 3 3 3 4] & [3 3 3 4 5 9],
 ;; then 2 + 1 + 0 + 1 + 2 + 5 = 11.
-
 ;; The problem seems rather easy, though parsing might be a chore.
+
 (import (scheme base))  ;; R7RS
 (import (chibi)) ;; IO
 (import (srfi 115))  ;; regexp
