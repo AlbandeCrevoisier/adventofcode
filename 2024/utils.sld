@@ -1,5 +1,5 @@
 (define-library (utils)
-  (export read-input-file extract-numeric displayln)
+  (export read-input-file extract-numeric difference displayln)
   (import (scheme base)  ;; R7RS
           (chibi)  ;; IO
           (srfi 115))  ;; regexp
@@ -15,6 +15,8 @@
 
     (define (extract-numeric str) (map string->number
                                        (regexp-extract '(+ numeric) str)))
+
+    (define (difference a b) (abs (- a b)))
 
     (define (displayln x) (begin (display x) (display "\n")))
     ))

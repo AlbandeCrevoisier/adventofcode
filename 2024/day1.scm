@@ -27,7 +27,6 @@
 (define left-sorted (list-sort < left-input))
 (define right-sorted (list-sort < right-input))
 
-(define (difference a b) (abs (- a b)))
 (define (sum-differences ls rs)
   (apply + (map difference ls rs)))
 
