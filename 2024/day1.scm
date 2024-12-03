@@ -12,20 +12,13 @@
 ;; then 2 + 1 + 0 + 1 + 2 + 5 = 11.
 ;; The problem seems rather easy, though parsing might be a chore.
 
-(import (scheme base))  ;; R7RS
-(import (chibi)) ;; IO
-(import (srfi 115))  ;; regexp
-(import (srfi 132))  ;; sort
+(import (scheme base)
+        (utils)
+        (srfi 132))  ;; sort
 
-(define (read-all-lines f)
-  (let ((rl (read-line f)))
-    (if (eof-object? rl)
-        '()
-        (cons rl (read-all-lines f)))))
-;;(define input-list (call-with-input-file "day1-example" read-all-lines))
-(define input-list (call-with-input-file "day1-input" read-all-lines))
+(define input-list (call-with-input-file "day1-example" read-all-lines))
+;;(define input-list (call-with-input-file "day1-input" read-all-lines))
 
-(define (extract-numeric s) (regexp-extract '(+ numeric) s))
 (define extracted-input (map extract-numeric input-list))
 
 (define left-input (map string->number (map car extracted-input)))
@@ -38,8 +31,7 @@
 (define (sum-differences ls rs)
   (apply + (map difference ls rs)))
 
-(display (sum-differences left-sorted right-sorted))
-(display "\n")
+(displayln (sum-differences left-sorted right-sorted))
 
 
 ;; The second part of the problem is to compute a similarity score
@@ -85,5 +77,4 @@
 (define (update-similarity-score val count score)
   (+ score
      (* val count (hash-table-ref/default right-ht val 0))))
-(display (hash-table-fold left-ht update-similarity-score 0))
-(display "\n")
+(displayln (hash-table-fold left-ht update-similarity-score 0))
