@@ -18,11 +18,11 @@
 
 (import (scheme base)  ;; R7RS
         (utils)
-        (srfi 1)  ;; filter
+        (srfi 1)  ;; filter, count
         (srfi 132))  ;; sort
 
-;;(define reports (map extract-numeric (read-input-file "day2-example")))
-(define reports (map extract-numeric (read-input-file "day2-input")))
+(define reports (map extract-numeric (read-input-file "day2-example")))
+;;(define reports (map extract-numeric (read-input-file "day2-input")))
 
 ;; (list-sorted? comp list) returns #f <=> there exists an adjacent
 ;; pair x y in the list such that y comp x.
@@ -39,7 +39,35 @@
            (gradual? (cdr report)))))
 (define (safe? report) (and (strictly-monotonous? report)
                             (gradual? report)))
-(define (count-safe reports)
-  (length (filter safe? reports)))
 
-(displayln (count-safe reports))
+(displayln (count safe? reports))
+
+
+;; The second task is trickier: it poses the same question as part 1,
+;; but with the possibility to remove one level from the report.
+;; 7 6 4 2 1 Safe without removing any level.
+;; 1 2 7 8 9 Unsafe regardless of which level is removed.
+;; 9 7 6 2 1 Unsafe regardless of which level is removed.
+;; 1 3 2 4 5 Safe by removing the second level, 3.
+;; 8 6 4 4 1 Safe by removing the third level, 4.
+;; 1 3 6 7 9 Safe without removing any level.
+;; => 4 safe levels now.
+;; We may change the code by adding a case when the report is unsafe:
+;; Generate the sub-reports with one level removed, & check them.
+;; Note: in my input, there are between 5 & 8 levels per report.
+(import (scheme eval))
+
+(define (make-sub-reports report)
+  (unfold (lambda (i) (>= i (length report)))
+          (lambda (i) (append (take report i) (drop report (+ i 1))))
+          (lambda (i) (+ i 1))
+          0))
+
+(define (sub-report-safe? report)
+  (let ((sub-reports (make-sub-reports report)))
+    (eval (append '(or) (map safe? sub-reports)))))  ;; Ugly, hacky, worky
+
+(define (dampener-safe? report)
+  (or (safe? report) (sub-report-safe? report)))
+
+(displayln (count dampener-safe? reports))
