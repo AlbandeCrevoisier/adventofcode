@@ -21,8 +21,8 @@
 
 (define extracted-input (map extract-numeric input-list))
 
-(define left-input (map string->number (map car extracted-input)))
-(define right-input (map string->number (map cadr extracted-input)))
+(define left-input (map car extracted-input))
+(define right-input (map cadr extracted-input))
 
 (define left-sorted (list-sort < left-input))
 (define right-sorted (list-sort < right-input))

@@ -13,7 +13,8 @@
     (define (read-input-file f)
       (call-with-input-file f read-all-lines))
 
-    (define (extract-numeric str) (regexp-extract '(+ numeric) str))
+    (define (extract-numeric str) (map string->number
+                                       (regexp-extract '(+ numeric) str)))
 
     (define (displayln x) (begin (display x) (display "\n")))
     ))
