@@ -19,4 +19,27 @@
 (define (extract-valid-muls memory) (regexp-extract valid-mul memory))
 (define (execute-mul mul) (apply * (extract-numeric mul)))
 
-(displayln (apply + (map execute-mul (extract-valid-muls memory))))
+(define (sum-mul memory)
+  (apply + (map execute-mul (extract-valid-muls memory))))
+
+(displayln (sum-mul memory))
+
+
+;; The second task is to additionaly parse the do() and don't()
+;; instructions that respectively enable & disable multiplications.
+;; I find this task ambiguous: multiplications are enabled by default,
+;; but is that true for each line or the whole input?
+;; I shall first assume each line corresponds to a separate memory
+;; blocks, & will thus prepend them with a do() instruction.
+;; After this, we only need to extract the memory portions where
+;; multiplications are enabled, & to apply our prior algorithm.
+(define memory-blocks (read-input-file "day3-example"))
+
+(define (prepend-do mem-block) (string-append "do()" mem-block))
+(define do-memory (apply string-append (map prepend-do memory-blocks)))
+
+(define mul-enabled '(: "do()" 
+(define (extract-mul-enabled memory)
+  (regexp-extract 
+
+(displayln (sum-mul do-memory))
