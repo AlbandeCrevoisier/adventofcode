@@ -11,8 +11,8 @@
         (utils)
         (srfi 115))  ;; regexp
 
-;; (define memory (apply string-append (read-input-file "day3-example")))
-(define memory (apply string-append (read-input-file "day3-input")))
+(define memory (apply string-append (read-input-file "day3-example")))
+;;(define memory (apply string-append (read-input-file "day3-input")))
 
 (define valid-mul '(: "mul(" (** 1 3 numeric) "," (** 1 3 numeric) ")"))
 
@@ -30,16 +30,25 @@
 ;; I find this task ambiguous: multiplications are enabled by default,
 ;; but is that true for each line or the whole input?
 ;; I shall first assume each line corresponds to a separate memory
-;; blocks, & will thus prepend them with a do() instruction.
+;; blocks, & thus that multiplication is enabled at each start start.
 ;; After this, we only need to extract the memory portions where
 ;; multiplications are enabled, & to apply our prior algorithm.
-(define memory-blocks (read-input-file "day3-example"))
 
-(define (prepend-do mem-block) (string-append "do()" mem-block))
-(define do-memory (apply string-append (map prepend-do memory-blocks)))
+;;(define memory-blocks (read-input-file "day3-example"))
+(define memory-blocks (read-input-file "day3-input"))
 
-(define mul-enabled '(: "do()" 
-(define (extract-mul-enabled memory)
-  (regexp-extract 
+(define (split-do mem-block) (regexp-split "do()" mem-block))
+(define (erase-dont mem-block) (regexp-replace '(: "don't()" (* any))
+                                               mem-block
+                                               ""))
+(define (map-erase-dont mem-blocks) (map erase-dont mem-blocks))
+(define (map-string-append mem-blocks) (map string-append mem-blocks))
 
-(displayln (sum-mul do-memory))
+(define mult-enabled-mem
+  (apply append
+         (map map-string-append
+              (map map-erase-dont
+                   (map split-do memory-blocks)))))
+
+(displayln (apply + (map sum-mul mult-enabled-mem)))
+;; answer is too high
