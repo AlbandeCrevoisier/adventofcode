@@ -11,16 +11,22 @@
         (utils)
         (srfi 115))  ;; regexp
 
-(define memory (apply string-append (read-input-file "day3-example")))
-;;(define memory (apply string-append (read-input-file "day3-input")))
+;;(define memory (read-input-file "day3-example"))
+(define memory (read-input-file "day3-input"))
 
 (define valid-mul '(: "mul(" (** 1 3 numeric) "," (** 1 3 numeric) ")"))
+(define (extract-muls mem-block) (regexp-extract valid-mul mem-block))
 
-(define (extract-valid-muls memory) (regexp-extract valid-mul memory))
 (define (execute-mul mul) (apply * (extract-numeric mul)))
 
+;; Map a function f that returns a list to memory & append all their
+;; returned lists.
+(define (map-to-mem f memory) (apply append (map f memory)))
+
+
 (define (sum-mul memory)
-  (apply + (map execute-mul (extract-valid-muls memory))))
+  (apply + (map execute-mul
+                (map-to-mem extract-muls memory))))
 
 (displayln (sum-mul memory))
 
@@ -34,21 +40,12 @@
 ;; After this, we only need to extract the memory portions where
 ;; multiplications are enabled, & to apply our prior algorithm.
 
-;;(define memory-blocks (read-input-file "day3-example"))
-(define memory-blocks (read-input-file "day3-input"))
-
 (define (split-do mem-block) (regexp-split "do()" mem-block))
 (define (erase-dont mem-block) (regexp-replace '(: "don't()" (* any))
                                                mem-block
                                                ""))
-(define (map-erase-dont mem-blocks) (map erase-dont mem-blocks))
-(define (map-string-append mem-blocks) (map string-append mem-blocks))
+(define (mul-enabled-mem memory)
+  (map erase-dont (map-to-mem split-do memory)))
 
-(define mult-enabled-mem
-  (apply append
-         (map map-string-append
-              (map map-erase-dont
-                   (map split-do memory-blocks)))))
-
-(displayln (apply + (map sum-mul mult-enabled-mem)))
-;; answer is too high
+(displayln (sum-mul (mul-enabled-mem memory)))
+;; too high
