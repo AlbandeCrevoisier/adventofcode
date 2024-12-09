@@ -39,6 +39,12 @@
 ;; blocks, & thus that multiplication is enabled at each start start.
 ;; After this, we only need to extract the memory portions where
 ;; multiplications are enabled, & to apply our prior algorithm.
+;; As this results in too high an answer, let's now assume that we are
+;; given a single memory block, & so that only the beginning of
+;; the first line has multiplication enabled.
+;; This second assumption proved to be correct.
+
+(define (all-memory memory) (list (apply string-append memory)))
 
 (define (split-do mem-block) (regexp-split "do()" mem-block))
 (define (erase-dont mem-block) (regexp-replace '(: "don't()" (* any))
@@ -47,5 +53,4 @@
 (define (mul-enabled-mem memory)
   (map erase-dont (map-to-mem split-do memory)))
 
-(displayln (sum-mul (mul-enabled-mem memory)))
-;; too high
+(displayln (sum-mul (mul-enabled-mem (all-memory memory))))
