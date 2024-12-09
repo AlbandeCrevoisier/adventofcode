@@ -11,8 +11,8 @@
         (utils)
         (srfi 115))  ;; regexp
 
-;;(define memory (read-input-file "day3-example"))
-(define memory (read-input-file "day3-input"))
+(define memory (read-input-file "day3-example"))
+;;(define memory (read-input-file "day3-input"))
 
 (define valid-mul '(: "mul(" (** 1 3 numeric) "," (** 1 3 numeric) ")"))
 (define (extract-muls mem-block) (regexp-extract valid-mul mem-block))
