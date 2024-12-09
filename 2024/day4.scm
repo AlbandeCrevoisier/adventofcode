@@ -65,7 +65,33 @@
       (count (lambda (dir) (-MAS? pos dir))
              directions)))
 
-(let ((scores 0))
-  (let ((f (lambda (pos) (set! scores (+ scores (count-XMAS pos))))))
+(let ((score 0))
+  (let ((f (lambda (pos) (set! score (+ score (count-XMAS pos))))))
     (string-for-each-cursor f text start end)
-    (displayln scores)))
+    (displayln score)))
+
+
+;; Part two is to find X-MAS, as in a cross of two MAS, rather than
+;; the word XMAS:
+;; M·S
+;; ·A·
+;; M·S
+;; Now, we'll focus on finding As & determine wether they're part of
+;; X-MAS.
+;; Note: we now only need one Z of padding all around our input, but
+;; I cannot be bothered to modify my code.
+(define (X-MAS? pos)
+  (and (char=? #\A (at pos))
+       (and (or (and (char=? #\M (at (up-left pos)))
+                     (char=? #\S (at (down-right pos))))
+                (and (char=? #\S (at (up-left pos)))
+                     (char=? #\M (at (down-right pos)))))
+            (or (and (char=? #\M (at (up-right pos)))
+                     (char=? #\S (at (down-left pos))))
+                (and (char=? #\S (at (up-right pos)))
+                     (char=? #\M (at (down-left pos))))))))
+
+(let ((score 0))
+  (let ((f (lambda (pos) (if (X-MAS? pos) (set! score (+ score 1))))))
+    (string-for-each-cursor f text start end)
+    (displayln score)))
