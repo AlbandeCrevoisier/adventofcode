@@ -10,7 +10,8 @@
         (utils)
         (srfi 1) ;; list processing
         (srfi 125) ;; hash tables
-        (srfi 128)) ;; comparators, reco by 125
+        (srfi 128) ;; comparators, reco by 125
+        (chibi iset)) ;; integer sets
 
 (define lines (read-input-file "day5-example"))
 
@@ -33,3 +34,18 @@
 (define (insert-dependencies)
   (map insert-dependency (parse-orderings orderings)))
 (insert-dependencies)
+
+(define (get-dependencies page) (hash-table-ref/default dependencies
+                                                        page
+                                                        '()))
+
+(define (valid-page? page following-pages dependencies)
+  (iset-empty? (iset-intersection (list->iset following-pages)
+                                  (list->iset dependencies))))
+(define (valid-manual? manual)
+  (let ((page (car manual))
+        (following-pages (cdr manual)))
+    (if (<= (length manual) 1)
+        #t
+        (and (valid-page? page following-pages (get-dependencies page))
+             (valid-manual? following-pages)))))
