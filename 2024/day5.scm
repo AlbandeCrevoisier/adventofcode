@@ -13,7 +13,8 @@
         (srfi 128) ;; comparators, reco by 125
         (chibi iset)) ;; integer sets
 
-(define lines (read-input-file "day5-example"))
+;;(define lines (read-input-file "day5-example"))
+(define lines (read-input-file "day5-input"))
 
 (define (string-empty? s) (string=? s ""))
 (define line-break (list-index string-empty? lines))
@@ -49,3 +50,17 @@
         #t
         (and (valid-page? page following-pages (get-dependencies page))
              (valid-manual? following-pages)))))
+
+(define (filter-valid-manuals manuals)
+  (filter valid-manual? manuals))
+
+(define (middle-page manual)
+  (list-ref manual (floor (/ (length manual) 2))))
+(define (middle-pages manuals)
+  (map middle-page manuals))
+(define (sum-middle-pages manuals)
+  (apply + (middle-pages manuals)))
+
+(define (sum-valid-manuals-mid-pages raw-manuals)
+  (sum-middle-pages (filter-valid-manuals (parse-manuals raw-manuals))))
+(displayln (sum-valid-manuals-mid-pages manuals))
